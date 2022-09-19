@@ -427,4 +427,187 @@ const addRole = () => {
           });
         });
       };
-    
+
+// Updates the Employee's Manager
+const updateEmployeeManager = () => {
+    let sql =       `SELECT employee.id, employee.first_name, employee.last_name, employee.manager_id
+                    FROM employee`;
+     connection.promise().query(sql, (error, response) => {
+      let employeeNamesArray = [];
+      response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+      inquirer
+        .prompt([
+          {
+            name: 'chosenEmployee',
+            type: 'list',
+            message: 'Which employee has a new manager?',
+            choices: employeeNamesArray
+          },
+          {
+            name: 'newManager',
+            type: 'list',
+            message: 'Who is their manager?',
+            choices: employeeNamesArray
+          }
+        ])
+        .then((answer) => {
+          let employeeId, managerId;
+          response.forEach((employee) => {
+            if (
+              answer.chosenEmployee === `${employee.first_name} ${employee.last_name}`
+            ) {
+              employeeId = employee.id;
+            }
+
+            if (
+              answer.newManager === `${employee.first_name} ${employee.last_name}`
+            ) {
+              managerId = employee.id;
+            }
+          });
+
+          if (validate.isSame(answer.chosenEmployee, answer.newManager)) {
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.redBright(`Invalid Manager Selection`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            promptUser();
+          } else {
+            let sql = `UPDATE employee SET employee.manager_id = ? WHERE employee.id = ?`;
+
+            connection.query(
+              sql,
+              [managerId, employeeId],
+              (error) => {
+                if (error) throw error;
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                console.log(chalk.greenBright(`Employee Manager Updated`));
+                console.log(chalk.greenBright.bold(`====================================================================================`));
+                promptUser();
+              }
+            );
+          }
+        });
+    });
+};
+
+// -------------------------------------- REMOVE --------------------------------------------------------
+
+// Deletes the Employee
+const removeEmployee = () => {
+    let sql =     `SELECT employee.id, employee.first_name, employee.last_name FROM employee`;
+
+    connection.promise().query(sql, (error, response) => {
+      if (error) throw error;
+      let employeeNamesArray = [];
+      response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+      inquirer
+        .prompt([
+          {
+            name: 'chosenEmployee',
+            type: 'list',
+            message: 'Which employee would you like to remove?',
+            choices: employeeNamesArray
+          }
+        ])
+        .then((answer) => {
+          let employeeId;
+
+          response.forEach((employee) => {
+            if (
+              answer.chosenEmployee ===
+              `${employee.first_name} ${employee.last_name}`
+            ) {
+              employeeId = employee.id;
+            }
+          });
+
+          let sql = `DELETE FROM employee WHERE employee.id = ?`;
+          connection.query(sql, [employeeId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.redBright(`Employee Successfully Removed`));
+            console.log(chalk.RedBright.bold(`====================================================================================`));
+            viewAllEmployees();
+          });
+        });
+    });
+  };
+
+//Deletes the Role of Employee
+const removeRole = () => {
+    let sql = `SELECT role.id, role.title FROM role`;
+
+    connection.promise().query(sql, (error, response) => {
+      if (error) throw error;
+      let roleNamesArray = [];
+      response.forEach((role) => {roleNamesArray.push(role.title);});
+
+      inquirer
+        .prompt([
+          {
+            name: 'chosenRole',
+            type: 'list',
+            message: 'Which role would you like to remove?',
+            choices: roleNamesArray
+          }
+        ])
+        .then((answer) => {
+          let roleId;
+
+          response.forEach((role) => {
+            if (answer.chosenRole === role.title) {
+              roleId = role.id;
+            }
+          });
+
+          let sql =   `DELETE FROM role WHERE role.id = ?`;
+          connection.promise().query(sql, [roleId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.greenBright(`Role Successfully Removed`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            viewAllRoles();
+          });
+        });
+    });
+  };
+
+// This will Delete a Department
+const removeDepartment = () => {
+    let sql =   `SELECT department.id, department.department_name FROM department`;
+    connection.promise().query(sql, (error, response) => {
+      if (error) throw error;
+      let departmentNamesArray = [];
+      response.forEach((department) => {departmentNamesArray.push(department.department_name);});
+
+      inquirer
+        .prompt([
+          {
+            name: 'chosenDept',
+            type: 'list',
+            message: 'Which department would you like to remove?',
+            choices: departmentNamesArray
+          }
+        ])
+        .then((answer) => {
+          let departmentId;
+
+          response.forEach((department) => {
+            if (answer.chosenDept === department.department_name) {
+              departmentId = department.id;
+            }
+          });
+
+          let sql =     `DELETE FROM department WHERE department.id = ?`;
+          connection.promise().query(sql, [departmentId], (error) => {
+            if (error) throw error;
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            console.log(chalk.redBright(`Department Successfully Removed`));
+            console.log(chalk.redBright.bold(`====================================================================================`));
+            viewAllDepartments();
+          });
+        });
+    });
+};
