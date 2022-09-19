@@ -12,7 +12,7 @@ connection.connect((error) => {
     console.log(``);
     console.log(chalk.greenBright.bold(figlet.textSync('Employee Tracker')));
     console.log(``);
-    console.log(`                                                          ` + chalk.greenBright.bold('Created By: Joseph DeWoody'));
+    console.log(`                                                          ` + chalk.greenBright.bold('Created By: Theodore Shishkovskiy'));
     console.log(``);
     console.log(chalk.yellow.bold(`====================================================================================`));
     promptUser();
